@@ -30,20 +30,6 @@
 # Details service
 ##################################################################################################
 apiVersion: v1
-kind: Service
-metadata:
-  name: details
-  labels:
-    app: details
-    service: details
-spec:
-  ports:
-  - port: 9080
-    name: http
-  selector:
-    app: details
----
-apiVersion: v1
 kind: ServiceAccount
 metadata:
   name: bookinfo-details
@@ -72,7 +58,7 @@ spec:
       serviceAccountName: bookinfo-details
       containers:
       - name: details
-        image: docker.io/istio/examples-bookinfo-details-v1:1.16.4
+        image: REGISTRY/details:v1-TAG
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 9080
@@ -82,20 +68,6 @@ spec:
 ##################################################################################################
 # Ratings service
 ##################################################################################################
-apiVersion: v1
-kind: Service
-metadata:
-  name: ratings
-  labels:
-    app: ratings
-    service: ratings
-spec:
-  ports:
-  - port: 9080
-    name: http
-  selector:
-    app: ratings
----
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -125,7 +97,7 @@ spec:
       serviceAccountName: bookinfo-ratings
       containers:
       - name: ratings
-        image: docker.io/istio/examples-bookinfo-ratings-v1:1.16.4
+        image: REGISTRY/ratings:v1-TAG
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 9080
@@ -135,20 +107,6 @@ spec:
 ##################################################################################################
 # Reviews service
 ##################################################################################################
-apiVersion: v1
-kind: Service
-metadata:
-  name: reviews
-  labels:
-    app: reviews
-    service: reviews
-spec:
-  ports:
-  - port: 9080
-    name: http
-  selector:
-    app: reviews
----
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -178,7 +136,7 @@ spec:
       serviceAccountName: bookinfo-reviews
       containers:
       - name: reviews
-        image: docker.io/istio/examples-bookinfo-reviews-v1:1.16.4
+        image: REGISTRY/reviews:v1-TAG
         imagePullPolicy: IfNotPresent
         env:
         - name: LOG_DIR
@@ -220,7 +178,7 @@ spec:
       serviceAccountName: bookinfo-reviews
       containers:
       - name: reviews
-        image: docker.io/istio/examples-bookinfo-reviews-v2:1.16.4
+        image: REGISTRY/reviews:v2-TAG
         imagePullPolicy: IfNotPresent
         env:
         - name: LOG_DIR
@@ -262,7 +220,7 @@ spec:
       serviceAccountName: bookinfo-reviews
       containers:
       - name: reviews
-        image: docker.io/istio/examples-bookinfo-reviews-v3:1.16.4
+        image: REGISTRY/reviews:v3-TAG
         imagePullPolicy: IfNotPresent
         env:
         - name: LOG_DIR
@@ -282,23 +240,6 @@ spec:
       - name: tmp
         emptyDir: {}
 ---
-##################################################################################################
-# Productpage services
-##################################################################################################
-apiVersion: v1
-kind: Service
-metadata:
-  name: productpage
-  labels:
-    app: productpage
-    service: productpage
-spec:
-  ports:
-  - port: 9080
-    name: http
-  selector:
-    app: productpage
----
 apiVersion: v1
 kind: ServiceAccount
 metadata:
@@ -309,7 +250,7 @@ metadata:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: productpage-v1
+  name: productpage
   labels:
     app: productpage
     version: v1
@@ -328,7 +269,7 @@ spec:
       serviceAccountName: bookinfo-productpage
       containers:
       - name: productpage
-        image: docker.io/istio/examples-bookinfo-productpage-v1:1.16.4
+        image: REGISTRY/productpage:TAG
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 9080
@@ -340,4 +281,3 @@ spec:
       volumes:
       - name: tmp
         emptyDir: {}
----

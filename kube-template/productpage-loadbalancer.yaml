@@ -13,47 +13,20 @@
 #   limitations under the License.
 
 ##################################################################################################
-# Ratings service
+# Productpage services
 ##################################################################################################
 apiVersion: v1
 kind: Service
 metadata:
-  name: ratings
+  name: productpage
   labels:
-    app: ratings
-    service: ratings
+    app: productpage
+    service: productpage
 spec:
+  type: LoadBalancer
   ports:
-  - port: 9080
+  - port: 80
+    targetPort: 9080
     name: http
   selector:
-    app: ratings
----
-apiVersion: apps/v1
-kind: Deployment
-metadata:
-  name: ratings-v1
-  labels:
-    app: ratings
-    version: v1
-spec:
-  replicas: 1
-  selector:
-    matchLabels:
-      app: ratings
-      version: v1
-  template:
-    metadata:
-      labels:
-        app: ratings
-        version: v1
-    spec:
-      containers:
-      - name: ratings
-        image: docker.io/istio/examples-bookinfo-ratings-v1:1.16.4
-        imagePullPolicy: IfNotPresent
-        ports:
-        - containerPort: 9080
-        securityContext:
-          runAsUser: 1000
----
+    app: productpage

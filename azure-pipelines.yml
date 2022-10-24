@@ -1,0 +1,179 @@
+# Docker
+# Build a Docker image
+# https://docs.microsoft.com/azure/devops/pipelines/languages/docker
+
+trigger:
+  branches:
+    include:
+    - main
+  paths:
+    exclude:
+    - 'kube-template/*'
+    - 'kube-manifests/*'
+    - 'azure-pipelines.yml'
+
+resources:
+- repo: self
+
+variables:
+  tag: '$(Build.BuildId)'
+  containerRegistry: 'hsleeakscr.azurecr.io'
+  acrname: 'hsleeakscr-con'
+  clustername: 'hsleeaks-con'
+
+stages:
+- stage: Build
+  displayName: Build App Containers
+  jobs:
+  - job: Build1
+    displayName: Build productpage App
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: Bash@3
+      displayName: Build productpage Image
+      inputs:
+        targetType: 'inline'
+        script: |
+          pushd productpage
+            docker build --pull -t $(containerRegistry)/productpage:$(tag) -t $(containerRegistry)/productpage:$(tag) .
+            docker image list
+          popd
+    - task: Docker@2
+      displayName: push productpage Image
+      inputs:
+        containerRegistry: $(acrname)
+        command: 'push'
+        repository: 'productpage'
+        tags: |
+          $(tag)
+
+  - job: Build2
+    displayName: Build Ratings App
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: Bash@3
+      displayName: Build ratings Image
+      inputs:
+        targetType: 'inline'
+        script: |
+          pushd ratings
+            docker build --pull -t $(containerRegistry)/ratings:v1-$(tag) --build-arg service_version=v1 .
+            docker build --pull -t $(containerRegistry)/ratings:v2-$(tag) --build-arg service_version=v2 .
+          popd
+    - task: Docker@2
+      displayName: push ratings Image
+      inputs:
+        containerRegistry: $(acrname)
+        command: 'push'
+        repository: 'ratings'
+        tags: |
+          v1-$(tag)
+          v2-$(tag)
+  - job: Build3
+    displayName: Build details App
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: Bash@3
+      displayName: build details Image
+      inputs:
+        targetType: 'inline'
+        script: |
+          pushd details
+            docker build --pull -t $(containerRegistry)/details:v1-$(tag) --build-arg service_version=v1 .
+            docker build --pull -t $(containerRegistry)/details:v2-$(tag) --build-arg service_version=v2 --build-arg enable_external_book_service=true .
+          popd
+    - task: Docker@2
+      displayName: push details Image
+      inputs:
+        containerRegistry: $(acrname)
+        command: 'push'
+        repository: 'details'
+        tags: |
+          v1-$(tag)
+          v2-$(tag)
+  - job: Build4
+    displayName: Build Reviews App
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: Bash@3
+      displayName: build reviews Image
+      inputs:
+        targetType: 'inline'
+        script: |
+          pushd reviews
+            gradle clean build && docker image list
+            pushd reviews-wlpcfg
+              docker build --pull -t $(containerRegistry)/reviews:v1-$(tag) --build-arg service_version=v1 .
+              docker build --pull -t $(containerRegistry)/reviews:v2-$(tag) --build-arg service_version=v2 --build-arg enable_ratings=true .
+              docker build --pull -t $(containerRegistry)/reviews:v3-$(tag) --build-arg service_version=v3 --build-arg enable_ratings=true --build-arg star_color=red .
+            popd
+          popd
+    - task: Docker@2
+      displayName: push reviews Image
+      inputs:
+        containerRegistry: $(acrname)
+        repository: 'reviews'
+        command: 'push'
+        tags: |
+          v1-$(tag)
+          v2-$(tag)
+          v3-$(tag)
+
+- stage: deploy
+  displayName: generate and deploy manifests
+  jobs:
+  - job: deploy
+    displayName: generate and deploy manifests
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: Bash@3
+      displayName: generate deployment yaml
+      inputs:
+        targetType: 'inline'
+        script: |
+          sed -e 's/REGISTRY/$(containerRegistry)/g' -e 's/TAG/$(tag)/g' kube-template/bookinfo-deployment.yaml > kube-manifests/bookinfo-deployment.yaml
+          cp kube-template/bookinfo-svc.yaml kube-manifests
+    - task: Kubernetes@1
+      displayName: deploy new svc
+      inputs:
+        connectionType: 'Kubernetes Service Connection'
+        kubernetesServiceEndpoint: '$(clustername)'
+        command: 'apply'
+        arguments: '-f kube-manifests/bookinfo-svc.yaml'
+        secretType: 'dockerRegistry'
+        containerRegistryType: 'Azure Container Registry'     
+    - task: Kubernetes@1
+      displayName: deploy new deployment
+      inputs:
+        connectionType: 'Kubernetes Service Connection'
+        kubernetesServiceEndpoint: '$(clustername)'
+        command: 'apply'
+        arguments: '-f kube-manifests/bookinfo-deployment.yaml'
+        secretType: 'dockerRegistry'
+        containerRegistryType: 'Azure Container Registry'
+  dependsOn:
+  - Build
+- stage: verify
+  displayName: verify manifests
+  jobs:
+  - job: verify
+    displayName: verify all deployed
+    pool:
+      vmImage: ubuntu-latest
+    steps:
+    - task: Kubernetes@1
+      displayName: get all deployed manifests
+      inputs:
+        connectionType: 'Kubernetes Service Connection'
+        kubernetesServiceEndpoint: '$(clustername)'
+        command: 'get'
+        arguments: 'all -o wide'
+        secretType: 'dockerRegistry'
+        containerRegistryType: 'Azure Container Registry'
+  dependsOn:
+  - deploy
