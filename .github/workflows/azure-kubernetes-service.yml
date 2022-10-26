@@ -30,10 +30,6 @@ name: Build and deploy an app to AKS
 on:
   push:
     branches: [ "main" ]
-    paths:
-      - '!kube-template/*'
-      - '!kube-manifests/*'
-      - '!azure-pipelines.yml'
   workflow_dispatch:
 
 env:
