@@ -1,0 +1,167 @@
+# This workflow will build and push an application to a Azure Kubernetes Service (AKS) cluster when you push your code
+#
+# This workflow assumes you have already created the target AKS cluster and have created an Azure Container Registry (ACR)
+# For instructions see:
+#   - https://docs.microsoft.com/en-us/azure/aks/kubernetes-walkthrough-portal
+#   - https://docs.microsoft.com/en-us/azure/container-registry/container-registry-get-started-portal
+#   - https://github.com/Azure/aks-create-action
+#
+# To configure this workflow:
+#
+# 1. Set the following secrets in your repository (instructions for getting these can be found at https://docs.microsoft.com/en-us/azure/developer/github/connect-from-azure?tabs=azure-cli%2Clinux):
+#    - AZURE_CLIENT_ID
+#    - AZURE_TENANT_ID
+#    - AZURE_SUBSCRIPTION_ID
+#
+# 2. Set the following environment variables (or replace the values below):
+#    - AZURE_CONTAINER_REGISTRY (name of your container registry / ACR)
+#    - RESOURCE_GROUP (where your cluster is deployed)
+#    - CLUSTER_NAME (name of your AKS cluster)
+#    - CONTAINER_NAME (name of the container image you would like to push up to your ACR)
+#    - IMAGE_PULL_SECRET_NAME (name of the ImagePullSecret that will be created to pull your ACR image)
+#    - DEPLOYMENT_MANIFEST_PATH (path to the manifest yaml for your deployment)
+#
+# For more information on GitHub Actions for Azure, refer to https://github.com/Azure/Actions
+# For more samples to get started with GitHub Action workflows to deploy to Azure, refer to https://github.com/Azure/actions-workflow-samples
+# For more options with the actions used below please refer to https://github.com/Azure/login
+
+name: Build and deploy an app to AKS
+
+on:
+  push:
+    branches: [ "main" ]
+    paths:
+      - '!kube-template/*'
+      - '!kube-manifests/*'
+      - '!azure-pipelines.yml'
+  workflow_dispatch:
+
+env:
+  AZURE_CONTAINER_REGISTRY: "pocshow"
+  CONTAINER_NAME: "azure-app"
+  RESOURCE_GROUP: "poc-show-rg"
+  CLUSTER_NAME: "pocshowaks"
+
+jobs:
+  buildImage-productpage:
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+    # Checks out the repository this file is in
+    - uses: actions/checkout@v3
+    
+    # Logs in with your Azure credentials
+    - name: Azure login
+      uses: azure/login@v1.4.3
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      
+    # Builds and pushes an image up to your Azure Container Registry
+    - name: Build and push image to ACR
+      run: |
+        az acr build --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/productpage:${{ github.run_number }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} -g ${{ env.RESOURCE_GROUP }} ./productpage
+
+  buildImage-ratings:
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+    # Checks out the repository this file is in
+    - uses: actions/checkout@v3
+    
+    # Logs in with your Azure credentials
+    - name: Azure login
+      uses: azure/login@v1.4.3
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      
+    # Builds and pushes an image up to your Azure Container Registry
+    - name: Build and push image to ACR
+      run: |
+        az acr build --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/ratings:v1-${{ github.run_number }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} -g ${{ env.RESOURCE_GROUP }} --build-arg service_version=v1 ./ratings
+        az acr build --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/ratings:v2-${{ github.run_number }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} -g ${{ env.RESOURCE_GROUP }} --build-arg service_version=v2 ./ratings
+
+  buildImage-details:
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+    # Checks out the repository this file is in
+    - uses: actions/checkout@v3
+    
+    # Logs in with your Azure credentials
+    - name: Azure login
+      uses: azure/login@v1.4.3
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      
+    # Builds and pushes an image up to your Azure Container Registry
+    - name: Build and push image to ACR
+      run: |
+        az acr build --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/details:v1-${{ github.run_number }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} -g ${{ env.RESOURCE_GROUP }} --build-arg service_version=v1 ./details
+        az acr build --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/details:v2-${{ github.run_number }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} -g ${{ env.RESOURCE_GROUP }} --build-arg service_version=v2 --build-arg enable_external_book_service=true ./details
+    
+  buildImage-reviews:
+    permissions:
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    steps:
+    # Checks out the repository this file is in
+    - uses: actions/checkout@v3
+    
+    # Logs in with your Azure credentials
+    - name: Azure login
+      uses: azure/login@v1.4.3
+      with:
+        client-id: ${{ secrets.AZURE_CLIENT_ID }}
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+      
+    # Builds and pushes an image up to your Azure Container Registry
+    - name: Build and push image to ACR
+      run: |
+        az acr build --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/reviews:v1-${{ github.run_number }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} -g ${{ env.RESOURCE_GROUP }} --build-arg service_version=v1 ./reviews
+        az acr build --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/reviews:v2-${{ github.run_number }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} -g ${{ env.RESOURCE_GROUP }} --build-arg service_version=v2 --build-arg enable_ratings=true ./reviews
+        az acr build --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/reviews:v3-${{ github.run_number }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} -g ${{ env.RESOURCE_GROUP }} --build-arg service_version=v3 --build-arg enable_ratings=true --build-arg star_color=red ./reviews
+        
+  createmanifests:
+    permissions:
+      actions: read
+      contents: read
+      id-token: write
+    runs-on: ubuntu-latest
+    needs: [buildImage-productpage, buildImage-ratings, buildImage-details, buildImage-reviews]
+    steps:
+    # Checks out the repository this file is in
+    - uses: actions/checkout@v3
+      
+    # Retrieves your Azure Kubernetes Service cluster's kubeconfig file
+    - name: Edit manifest files
+      run: |
+        cat ./kube-template/bookinfo-deployment.yaml | sed -e "s|ACR_REPO_URL|${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io|;s|BUILD_ID|${{ github.run_number }}|" > bookinfo-deployment.yaml
+        cat bookinfo-deployment.yaml
+        
+    - name: Push to gitops repository
+      run: |
+        ls -la
+        git clone https://WorldCenterNuri:${{ secrets.ACCESS_TOKEN }}@github.com/WorldCenterNuri/Pocshowroom-env.git
+        cp -rf ./bookinfo-deployment.yaml ./Pocshowroom-env/manifests/bookinfo-deployment.yaml
+        cp -rf ./kube-template/bookinfo-svc.yaml ./Pocshowroom-env/manifests/bookinfo-svc.yaml
+        cd ./Pocshowroom-env
+        git config --global user.email "psangah28@gmail.com"
+        git config --global user.name "nuripark"
+        git add .
+        git commit -m "${{ github.run_number }}"
+        git push
+        
