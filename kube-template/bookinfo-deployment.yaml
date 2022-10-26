@@ -58,7 +58,7 @@ spec:
       serviceAccountName: bookinfo-details
       containers:
       - name: details
-        image: REGISTRY/details:v1-TAG
+        image: ACR_REPO_URL/details:v1-BUILD_ID
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 9080
@@ -97,7 +97,7 @@ spec:
       serviceAccountName: bookinfo-ratings
       containers:
       - name: ratings
-        image: REGISTRY/ratings:v1-TAG
+        image: ACR_REPO_URL/ratings:v1-BUILD_ID
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 9080
@@ -136,7 +136,7 @@ spec:
       serviceAccountName: bookinfo-reviews
       containers:
       - name: reviews
-        image: REGISTRY/reviews:v1-TAG
+        image: ACR_REPO_URL/reviews:v1-BUILD_ID
         imagePullPolicy: IfNotPresent
         env:
         - name: LOG_DIR
@@ -178,7 +178,7 @@ spec:
       serviceAccountName: bookinfo-reviews
       containers:
       - name: reviews
-        image: REGISTRY/reviews:v2-TAG
+        image: ACR_REPO_URL/reviews:v2-BUILD_ID
         imagePullPolicy: IfNotPresent
         env:
         - name: LOG_DIR
@@ -220,7 +220,7 @@ spec:
       serviceAccountName: bookinfo-reviews
       containers:
       - name: reviews
-        image: REGISTRY/reviews:v3-TAG
+        image: ACR_REPO_URL/reviews:v3-BUILD_ID
         imagePullPolicy: IfNotPresent
         env:
         - name: LOG_DIR
@@ -269,7 +269,7 @@ spec:
       serviceAccountName: bookinfo-productpage
       containers:
       - name: productpage
-        image: REGISTRY/productpage:TAG
+        image: ACR_REPO_URL/productpage:BUILD_ID
         imagePullPolicy: IfNotPresent
         ports:
         - containerPort: 9080
