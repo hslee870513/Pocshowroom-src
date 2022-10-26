@@ -151,10 +151,10 @@ jobs:
     - name: Push to gitops repository
       run: |
         ls -la
-        git clone https://WorldCenterNuri:${{ secrets.ACCESS_TOKEN }}@github.com/WorldCenterNuri/Pocshowroom-env.git
-        cp -rf ./bookinfo-deployment.yaml ./Pocshowroom-env/manifests/bookinfo-deployment.yaml
-        cp -rf ./kube-template/bookinfo-svc.yaml ./Pocshowroom-env/manifests/bookinfo-svc.yaml
-        cd ./Pocshowroom-env
+        git clone https://WorldCenterNuri:${{ secrets.ACCESS_TOKEN }}@github.com/WorldCenterNuri/PocShowRoom-env.git
+        cp -rf ./bookinfo-deployment.yaml ./PocShowRoom-env/manifests/bookinfo-deployment.yaml
+        cp -rf ./kube-template/bookinfo-svc.yaml ./PocShowRoom-env/manifests/bookinfo-svc.yaml
+        cd ./PocShowRoom-env
         git config --global user.email "psangah28@gmail.com"
         git config --global user.name "nuripark"
         git add .
