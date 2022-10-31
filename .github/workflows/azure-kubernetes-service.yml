@@ -129,9 +129,12 @@ jobs:
       run: |
         pushd reviews
           gradle clean build
-          az acr build --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/reviews:v1-${{ github.run_number }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} -g ${{ env.RESOURCE_GROUP }} --build-arg service_version=v1 reviews-wlpcfg
-          az acr build --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/reviews:v2-${{ github.run_number }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} -g ${{ env.RESOURCE_GROUP }} --build-arg service_version=v2 --build-arg enable_ratings=true reviews-wlpcfg
-          az acr build --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/reviews:v3-${{ github.run_number }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} -g ${{ env.RESOURCE_GROUP }} --build-arg service_version=v3 --build-arg enable_ratings=true --build-arg star_color=red reviews-wlpcfg
+          ls -lR
+          pushd reviews-wlpcfg  
+            az acr build --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/reviews:v1-${{ github.run_number }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} -g ${{ env.RESOURCE_GROUP }} --build-arg service_version=v1 .
+            az acr build --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/reviews:v2-${{ github.run_number }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} -g ${{ env.RESOURCE_GROUP }} --build-arg service_version=v2 --build-arg enable_ratings=true .
+            az acr build --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/reviews:v3-${{ github.run_number }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} -g ${{ env.RESOURCE_GROUP }} --build-arg service_version=v3 --build-arg enable_ratings=true --build-arg star_color=red .
+          popd
         popd
   createmanifests:
     permissions:
