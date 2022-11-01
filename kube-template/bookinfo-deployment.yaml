@@ -59,7 +59,7 @@ spec:
       containers:
       - name: details
         image: ACR_REPO_URL/details:v1-BUILD_ID
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         ports:
         - containerPort: 9080
         securityContext:
@@ -98,7 +98,7 @@ spec:
       containers:
       - name: ratings
         image: ACR_REPO_URL/ratings:v1-BUILD_ID
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         ports:
         - containerPort: 9080
         securityContext:
@@ -137,7 +137,7 @@ spec:
       containers:
       - name: reviews
         image: ACR_REPO_URL/reviews:v1-BUILD_ID
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         env:
         - name: LOG_DIR
           value: "/tmp/logs"
@@ -179,7 +179,7 @@ spec:
       containers:
       - name: reviews
         image: ACR_REPO_URL/reviews:v2-BUILD_ID
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         env:
         - name: LOG_DIR
           value: "/tmp/logs"
@@ -221,7 +221,7 @@ spec:
       containers:
       - name: reviews
         image: ACR_REPO_URL/reviews:v3-BUILD_ID
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         env:
         - name: LOG_DIR
           value: "/tmp/logs"
@@ -270,7 +270,7 @@ spec:
       containers:
       - name: productpage
         image: ACR_REPO_URL/productpage:BUILD_ID
-        imagePullPolicy: IfNotPresent
+        imagePullPolicy: Always
         ports:
         - containerPort: 9080
         volumeMounts:
