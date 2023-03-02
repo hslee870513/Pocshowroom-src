@@ -33,10 +33,10 @@ on:
   workflow_dispatch:
 
 env:
-  AZURE_CONTAINER_REGISTRY: "pocshow"
+  AZURE_CONTAINER_REGISTRY: "hsleeshowroomcr"
   CONTAINER_NAME: "azure-app"
-  RESOURCE_GROUP: "poc-show-rg"
-  CLUSTER_NAME: "pocshowaks"
+  RESOURCE_GROUP: "scenario1-rg"
+  CLUSTER_NAME: "aks-scenario1"
 
 jobs:
   buildImage-productpage:
