@@ -39,6 +39,7 @@ metadata:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: bookinfo
   name: details-v1
   labels:
     app: details
@@ -78,6 +79,7 @@ metadata:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: bookinfo
   name: ratings-v1
   labels:
     app: ratings
@@ -117,6 +119,7 @@ metadata:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: bookinfo
   name: reviews-v1
   labels:
     app: reviews
@@ -159,6 +162,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: bookinfo
   name: reviews-v2
   labels:
     app: reviews
@@ -201,6 +205,7 @@ spec:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: bookinfo
   name: reviews-v3
   labels:
     app: reviews
@@ -250,6 +255,7 @@ metadata:
 apiVersion: apps/v1
 kind: Deployment
 metadata:
+  namespace: bookinfo
   name: productpage
   labels:
     app: productpage
