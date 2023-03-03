@@ -134,7 +134,7 @@ jobs:
       - name: Build and push image to ACR
         run: |
           pushd reviews
-            ls -lR
+            java -version
             gradle clean build
             pushd reviews-wlpcfg  
               az acr build --image ${{ env.AZURE_CONTAINER_REGISTRY }}.azurecr.io/reviews:v1-${{ github.run_number }} --registry ${{ env.AZURE_CONTAINER_REGISTRY }} -g ${{ env.RESOURCE_GROUP }} --build-arg service_version=v1 .
