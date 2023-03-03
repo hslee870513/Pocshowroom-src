@@ -132,6 +132,7 @@ jobs:
 
       # Builds and pushes an image up to your Azure Container Registry
       - name: Build and push image to ACR
+        continue-on-error: true
         run: |
           pushd reviews
             java -version
